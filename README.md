@@ -9,7 +9,7 @@ Most of my video editing relies on [`ffmpeg`](https://github.com/FFmpeg/FFmpeg#f
 
 - *Watermark:* Don't you wish your stimuli could show a code in the corner for experimenter use? Like condition and stimulus specifics? This script, by default, uses a substring of the filename as text in a watermark in the corner.
 - *Watermark_Mult:* Cycles through multiple different labels for watermarking videos. Good example of embedded looping.
-- *Hold_Last_Frame:* Does your (fMRI) experiment require that all videos in a directory are exactly the same duration? This script extends the last frame of a video clip to a target duration. 
+- *Hold_Last_Frame:* Does your (fMRI or Working Memory) experiment require that all videos in a directory are exactly the same duration? Do you wish you could use that last frame as your ISI? This script extends the last frame of a video clip to a target duration. 
 - *Hold_Last_Frame_Loop:* Puts the above information in a for loop. 
 - *LastFrame:* Generates png of last frame of a video clip.
 - *GetDur:* Generate duration of input video clip.
