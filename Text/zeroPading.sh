@@ -1,0 +1,1 @@
+rename -ne 's/\d+/sprintf("%03d",$&)/e' -- *.jpg
