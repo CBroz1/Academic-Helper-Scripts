@@ -1,7 +1,7 @@
 
 # Stimuli Manipulation 
 
-Over my academic career, I've put time into learning tools that allow me to automatically generate videos, images, or even text files for experimental stimuli or even data management. I post them her to preserve copies for future use, as well as share them with peers. The specifics of each script will have to be changed to fit future projects, but each can serve as a framework for accomplishing similar tasks.
+Over my academic career, I've put time into learning tools that allow me to automatically generate videos, images, or text files for experimental stimuli or even data management. I post them here to preserve copies for future use, as well as share them with peers. The specifics of each script will have to be changed to fit future projects, but each can serve as a framework for accomplishing similar tasks.
 
 ## Video
 
