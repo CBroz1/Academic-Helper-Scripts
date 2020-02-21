@@ -28,6 +28,8 @@ Here, a lot of editing relies on [ImageMagick](https://imagemagick.org/index.php
 
 ## Text 
 
+I'm a big advocate of [Sublime Text](https://www.sublimetext.com/) as a text editor with powerful integrated tools. I even use Sublime for note taking purposes, and have made a [tutorial video](https://www.youtube.com/watch?v=v_FENArHqFU) to go into more detail. For anything that can't be handled in a couple lines of Unix, I would turn to python.
+
 - *TextToSpeech:* Too much reading? Listen instead! Relies on OSX `say` command, which, in my experience, is a lot higher quality than other software.
 - *LineBreaks:* Line breaks are saved differently depending on OS and can interfere with UNIX execution. I use this as a sanity check on scripts.
 - *zeroPading:* Adds padded zeros to numbered jpg files
