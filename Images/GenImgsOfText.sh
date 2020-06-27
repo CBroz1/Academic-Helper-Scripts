@@ -14,12 +14,13 @@
 while IFS='' read -r line || [[ -n "$line" ]]; do       # read lines from .txt below
     if [[ $1 -eq 1 ]]                                   # if cmdline arg == 1
     then
-        convert -size 455x125 xc:white blank.png        # make a white image
+        convert -size 455x125 xc:white blank.png        # make a white image of specific size
+            # if many images, move out of While loop to save time
         echo "Text: $line"                              # echo text and output file name
         out="T_${line%}.bmp"
         echo "Out: $out"
         convert blank.png -font Arial -pointsize 96 \           # use .txt line to write on blank img
-        -draw "gravity east fill black text 10,3 '$line'" $out
+        -draw "gravity east fill black text 10,3 '$line'" $out # change gravity for L/R/Center justification
         mkdir -p Read_All/                                     # make dir for new images
         mv T*bmp Read_All/                                     # move new images there
     fi
