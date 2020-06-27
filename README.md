@@ -26,6 +26,7 @@ Here, a lot of editing relies on [ImageMagick](https://imagemagick.org/index.php
 - *AddText:* Add text to bottom of png files.
 - *ColorNegate:* Negate image colors
 - *ConvertToPict:* Convert pngs to pict files, specifically for Psyscope.
+- *GenImgsOfText:* For single word presentation study using images, because native text presentation in software isn't ideal if you're alternating between orthography and control images, of false fonts, for example.
 
 ## Text 
 
