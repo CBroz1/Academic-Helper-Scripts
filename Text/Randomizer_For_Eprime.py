@@ -5,11 +5,14 @@
 # @Last Modified time: 2020-06-27 09:21:14
 
 ##NOTES
-	# Gets experimental list that feed AmToCS experiment
-	# randomizes until alternating pattern
-	# saves with 'testing' marker
+	# Gets experimental list that feed AmToCS experiment from StimList subfolder
+	# randomizes again and again until passes check
+	# here, checks for alternating pattern on specific column
+		# alternating pattern could be swapped for any other constraint, so generalizable
+		# but, this specific case would work faster by sorting items into bins and zipping
+	# saves with 'testing' suffix to file marker
 	# when packaged with PyInstaller launch AmToCS eprime
-
+	
 import random, os 
 	# random for shuffle
 	#os for exec command
@@ -17,7 +20,7 @@ import time # for log file
 localtime = time.asctime( time.localtime(time.time()) )
 
 Testing = ""	# blank when not testing
-				# adds file suffix for testing and limits cycles
+		# adds file suffix for testing and limits cycles
 
 def scramble(Subtest):
 	with open('StimLists/%sExp.txt' % Subtest, 'r') as SubtestFile:
