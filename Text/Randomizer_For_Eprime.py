@@ -68,7 +68,7 @@ def main():
 		scramble(Subtest)
 	WinCmd = "copy StimLists\\*txt ..\\..\\StimLists\\ /y & ..\\..\\AmToCS.ebs3"
 		# copies txt files with /y for default overwrite
-		# must use \\ for literal \ in python
+		# must use \\ for literal \ in python, here, two levels up to main eprime folder
 		# OSX cmd would look differnt, use unix
 	os.system(WinCmd) 	  		# Windows 
 	
@@ -80,3 +80,6 @@ main()
 	# build folder and other files don't seem to do anything
 	# app that works on other files must also copy files to where they're later expected to be
 	#	see WinCmd above for copying files
+	# users in my case will click a shortcut, which opens the exe in the dist folder
+	# the win command above edits files in the dist folder 
+	#	and then moves them to the subfolder within the main eprime directory
