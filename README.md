@@ -15,6 +15,7 @@ Most of my video editing relies on [`ffmpeg`](https://github.com/FFmpeg/FFmpeg#f
 - *GetDur:* Generate duration of input video clip.
 - *Crop:* Do you have a lot of videos that are too zoomed out? This script first generates a mean image for many videos (using first or all frames), to make sure your various videos are lined up, and then crops based on user measurement of xy coordinates.
 - *Mute:* Generates a muted copy of all mp4 files in a directory, moved to a ./Muted subfolder.
+- *OverlayVids:* Takes multiple source videos and outputs an overlay. Must be edited with xy values.
 - *GreenScreen:* Replace green background with neutral grey.
 - *Green_Concat:* Project specific workflow for chroma-keying, watermarking, picture to video, and concatenating video for experimental presentation. General tip for concatenation: use mkv.
 - *VidToGif_Mac:* Batch turn video clips into gif files, at 50% resolution. Some components of this process should change if running Linux, but Mac version of this script is better commented.
