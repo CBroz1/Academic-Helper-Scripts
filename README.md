@@ -41,7 +41,7 @@ I'm a big advocate of [Sublime Text](https://www.sublimetext.com/) as a text edi
 
 ## fMRI
 
-These files are specific to an fMRI project I was involved in. They hard code a lot of information, including stimulus timing, stimulus names, etc. They highlight the extended process of simulating that dataset, but also how to generate subject-specific video stimuli based on experiment timing files. I was not the lead on this project, and these scripts *do not represent the final outcome*, but only the first draft of such functions used in my own learning process.
+Some of these files are specific to an fMRI project I was involved in. They hard code a lot of information, including stimulus timing, stimulus names, etc. They highlight the extended process of simulating that dataset, but also how to generate subject-specific video stimuli based on experiment timing files. I was not the lead on this project, and these scripts *do not represent the final outcome*, but only the first draft of such functions used in my own learning process.
 
 - *OptSeq:* Parameters passed to the afni OptSeq command.
 - *ConvParRPar:* Specific our fMRI paradigm, converting par files to rpar files for simulating event related paradigm data.
