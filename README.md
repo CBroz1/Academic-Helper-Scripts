@@ -47,4 +47,4 @@ Some of these files are specific to an fMRI project I was involved in. They hard
 - *ConvParRPar:* Specific our fMRI paradigm, converting par files to rpar files for simulating event related paradigm data.
 - *Loop_ConDecon:* Loops through the similarly named `Con_DeCon.sh` file with various levels of noise and hemodynamic response function values.
 - *ConvParVid:* Once we had simulated the data, automatically generates video files for each subject based on OptSeq par files. 
-- *Top_Voxel_Indiv:* TopVoxel analysis tool. Credit to Jin Wang and Macarena Suarez.
+- *Top_Voxel_Indiv:* TopVoxel analysis tool. Credit to Jin Wang & Macarena Suarez.
