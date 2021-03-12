@@ -1,0 +1,434 @@
+---
+title: "NBack Generate Stimuli List"
+author: "Christopher Brozdowski & Neelima Wagley"
+comment: "edited for github distribution"
+date: "12/2/2020"
+modified by: "CB"
+output: pdf_document
+---
+##Goals
+
+This script will take a list of input words and generate pairs with and without orthographic and phonological overlap, for use in an n-back rhyme judgement.
+
+##Setup
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr);library(tidyverse);library(progress)
+
+seeed<-5 #randomization seed
+
+```
+Path info needs editing to directory with source data
+##WorkingDirectory
+```{r wd, eval=TRUE}
+
+#setwd("~/nback/RChains")
+
+```
+##Load data
+
+Load in the source database, including relevant variables for words, rimes, bodies, and any other potential matching criteria.
+
+```{r load-data, eval=TRUE, message=FALSE, echo=FALSE, results=FALSE}
+plaut <- read_csv("Source_Plaut.csv") 
+#Source includes 
+  #Word ID, Word, Word Length,Child Written Frequency, rime, body,
+  #Friends,Orthographic Enemies, Phonological Enemies
+
+censored <- c("example") 
+              # censoring some words out of the database
+
+plaut <- plaut[!(plaut$Word %in% censored),]
+rm(censored)
+
+##Subset for testing
+#plaut <- dplyr::filter(plaut, grepl('swap|gap|odd|rod|flood|blood|sit', Word))
+```
+##Build Pairs
+Next, make a list of all possible pairs of words, using each as prime and target, and labels each pair according to shared orthographic and/or phonological features.  
+
+```{r build-pairs, eval=TRUE}
+
+#Declare empty data frames for pairs 
+
+pairs <- data.frame(maxW=numeric(), #1003:don't want to rerun now
+                    w1=character(),w1_WF=numeric(),
+                    w1_rime=character(),w1_body=character(),
+                    cond1=character(),
+                    w2=character(),w2_WF=numeric(),
+                    w2_rime=character(),w2_body=character(),
+                    cond2=character())
+
+##Loop through rows
+nrows <- nrow(plaut) # num rows, loop size, can limit for testing
+pb <- progress_bar$new(width=50, total = nrows) #progress bar
+
+
+for (row1 in 1:nrows) {   #outer loop for prime
+  pb$tick()  
+  #variables for each variable of interest
+  word1 <- plaut[row1, "Word"]$Word
+  rime1 <- plaut[row1, "RIME"]$RIME
+  body1 <- plaut[row1, "BODY"]$BODY
+  wf1   <- plaut[row1, "CH_WRIT"]$CH_WRIT 
+  
+  for (row2 in 1:nrows) { #inner loop for targ
+    #more vars 
+    rime2 <- plaut[row2, "RIME"]$RIME
+    body2 <- plaut[row2, "BODY"]$BODY
+    word2 <- plaut[row2, "Word"]$Word
+    wf2   <- plaut[row2, "CH_WRIT"]$CH_WRIT 
+
+    if (word1==word2) { 
+      # - do nothing
+    } else if (rime1==rime2 & body1==body2) {
+      pairs <- rbind(pairs, data.frame(w1=word1, w1_WF=wf1,
+                                       w1_rime=rime1,w1_body=body1,
+                                       cond1=NA,
+                                       w2=word2, w2_WF=wf2,
+                                       w2_rime=rime2,w2_body=body2,
+                                       cond2="oypy")) 
+    
+    } else if ((rime1==rime2)
+                & (plaut[row1, "O_EN"]$O_EN != 0) #at least 1 o enemy
+               ) {
+      pairs <- rbind(pairs, data.frame(w1=word1, w1_WF=wf1,
+                                       w1_rime=rime1,w1_body=body1,
+                                       cond1=NA,
+                                       w2=word2, w2_WF=wf2,
+                                       w2_rime=rime2,w2_body=body2, 
+                                       cond2="onpy")) 
+    } else if ((body1==body2)
+               & (plaut[row1, "P_EN"]$P_EN != 0) #at least 1 p enemy
+               ) {
+      pairs <- rbind(pairs, data.frame(w1=word1, w1_WF=wf1,
+                                       w1_rime=rime1,w1_body=body1,
+                                       cond1=NA,
+                                       w2=word2, w2_WF=wf2,
+                                       w2_rime=rime2,w2_body=body2,
+                                       cond2="oypn"))
+    }
+  }
+}
+
+##Cleanup
+rm(body1,body2,rime1,rime2,word1,word2,nrows,row1,row2,wf2,pb,wf1)
+
+```
+
+##Make Chains
+
+Now, we make possible chains, stringing together pairs of words. Possible constraints include the maximum desired chain length, the number of times we permit a condition to repeat, and the number of times a rime or body can repeat for a given condition. 
+
+```{r make-chains, message=TRUE}
+
+# This is for optional max word. 
+pairs$maxW<-NA
+pairs <- pairs[,c(11,1:10)]
+
+##Make backup of pairs as stable ref
+##Will then use backup as lookup table 
+pairs_backup <- pairs
+
+# pairs <- sample_n(pairs, 100) #Random sample for development
+nrows <- nrow(pairs)
+
+##Specify length of chain limit
+maxstringsearch <- 24
+
+## Generate new table columns up to desired full size
+for (LinkNum in 3:maxstringsearch){ 
+  # here is the link (position of word in chain of words), starting from 3.
+  
+  wP    <- paste("w",LinkNum-1,sep="")        #prev word
+  wfP   <- paste("w",LinkNum-1,"_WF",sep="")  #prev wf
+  rimeP <- paste("w",LinkNum-1,"_rime",sep="")#prev rime
+  bodyP <- paste("w",LinkNum-1,"_body",sep="")#prev body
+  condP <- paste("cond",LinkNum-1,sep="")     #prev cond
+  wX    <- paste("w",LinkNum,sep="")          #linknum word
+  wfX   <- paste("w",LinkNum,"_WF",sep="")    #linknum wf
+  rimeX <- paste("w",LinkNum,"_rime",sep="")  #linknum rime 
+  bodyX <- paste("w",LinkNum,"_body",sep="")  #linknum body 
+  condX <- paste("cond",LinkNum,sep="")       #linknum cond
+  pairs[,c(wX,wfX,rimeX,bodyX,condX)]<-NA     #make empty cols 
+  #data frame used as lookup table and pairs = table of chains 
+  
+  ## for limiting repeat of conditions. For 3words*5cols, 15-1
+  if (LinkNum < 4) {CondLimitVal = 1} else {CondLimitVal <- 14}
+  
+  message(paste("Link",LinkNum))    
+  pb <- progress_bar$new(total = nrows, width=50,
+                         format = "[:bar] :percent") #progress bar
+  
+  for (row in 1:nrows) { #inner loop for for finding link in chain
+    pb$tick() 
+    word2 <- as.character(pairs[row, wP])
+    ## number options, test each to confirm not in chain/row already
+     
+    # subset of options from lookup table, _backup
+    optItems <- pairs_backup[pairs_backup$w1==word2,]  
+    options <- nrow(optItems) #count of options
+    # measure wf distance from mean of optItems wf
+    optItems$WF_MeanDist <- abs(mean(optItems$w2_WF) - optItems$w2_WF)
+    # reorder optItems based on closest to mean
+    optItems <- optItems[order(optItems$WF_MeanDist),]
+    
+    #w is absolute value, word2 is prime in chain, word3 is target in chain
+    
+    for(test in 1:options){
+		# get the pair item to test
+		word3 <- as.character(optItems[test,"w2"])
+		wf3   <- as.character(optItems[test,"w2_WF"])
+		rime3 <- as.character(optItems[test,"w2_rime"])
+		body3 <- as.character(optItems[test,"w2_body"])
+		cond3 <- as.character(optItems[test,"cond2"])
+      
+		# most recent X items
+		pairs_recent<-pairs[row,(ncol(pairs)-CondLimitVal):ncol(pairs)]
+
+		if (
+		(
+			##tests presence of new word in existing chain
+			## prev had is.na, but i then added na.rm
+			(
+				!(any(pairs[row,]==word3, na.rm = TRUE))
+				## For the recent columns. now hardcodes 3 as limit
+				& (sum(pairs_recent==cond3,na.rm=TRUE)!=3)
+			)
+        
+			## some tests only apply after link 3
+			&
+			(
+				if (LinkNum < 4) {TRUE}
+				else if (
+					##no more than 3 of same response in a row
+					(
+						sum(
+							substr(
+								pairs_recent[row,grepl("cond",names(pairs_recent))],
+								4,4)
+							==
+							substr(cond3,4,4)
+							,na.rm = TRUE)<=3
+					)
+
+					## the current rime may not occur more than 4 times
+					& (sum((pairs[row,grepl("rime",names(pairs))])==rime3, 
+					       na.rm = TRUE)<=4)
+
+					## the current body may not occur more than 4 times
+					& (sum((pairs[row,grepl("body",names(pairs))])==body3, 
+					       na.rm = TRUE)<=4)
+				) {TRUE}
+				else {FALSE}
+	        )
+        
+			## get bool of where cond rows are. shift 1 for body, 2 for rime
+			## check bool subset of pairs for current body/rime
+
+			## no rime within same condition
+			& !(any(
+					pairs[row, (tail(
+						as.character(pairs[row,])==cond3,-2
+						) %in% TRUE)
+					]==rime3)
+				)
+			# ## no body within same condition
+			& !(any(
+					pairs[row,(tail(
+						as.character(pairs[row,])==cond3,-1
+						) %in% TRUE)
+					]==body3)
+			)
+		))
+		{
+			pairs[row,wX]    <- as.character(word3)
+			pairs[row,wfX]   <- as.character(wf3)
+			pairs[row,rimeX] <- as.character(rime3)
+			pairs[row,bodyX] <- as.character(body3)
+			pairs[row,condX] <- as.character(cond3)
+			break #break loop on first it works
+		}
+    else {pairs[row,"maxW"] <- LinkNum-1}
+    }
+  }
+	if (all(is.na(pairs[,wX]))) { # no links found 
+		message("found no links")
+		break
+	}
+}
+
+
+
+rm(optItems,cond3,condP,condX,LinkNum,maxstringsearch,
+   nrows,options,row,test,word2,word3,wP,wX,CondLimitVal,pb,pairs_recent,
+   body3,bodyP,bodyX,rime3,rimeP,rimeX,wfP,wfX,wf3)
+write.csv(pairs,file="Output_Chains.csv")
+pairs_chain <- pairs
+
+
+
+```
+##Chains to 24
+
+Next, we use the generated chains of pairs with length 3 or greater and link them together. The joints are no-response items that have no orthographic or phonological overlap. Currently looks for 30 possible full lists. This process is biased by the random seed. Tests for words repeated within chain, and condition counts. Outputs basic count information. Word frequency is included in output, but not currently controlled for. With the word database we used, this reaching multiple full nback lists of 24 was just barely possible. The resulting Output_Chains24 CSVs show the data in either wide or long format, labeled with the date. 
+
+
+```{r ChainsTo24, message=TRUE, include=FALSE}
+
+##setup empty dataframe.
+{
+## CHOICE to ignore chains=2
+pairs_chain<-subset(pairs_chain,pairs_chain$maxW>2)
+rowsoutput <- 30 #how many chains. won't all be good (wfbalanced)
+#make empty output df
+  pairs_built<- data.frame(maxW=numeric())
+  for (LinkNum in 1:25){
+    #$# should 0-pad link num here
+    wX    <- paste("w",LinkNum,sep="")          #linknum word
+    wfX   <- paste("w",LinkNum,"_WF",sep="")    #linknum wf
+    rimeX <- paste("w",LinkNum,"_rime",sep="")  #linknum rime 
+    bodyX <- paste("w",LinkNum,"_body",sep="")  #linknum body 
+    condX <- paste("cond",LinkNum,sep="")       #linknum cond
+    temp <- data.frame(matrix(ncol=5,nrow=0))
+    colnames(temp)<-c(wX,wfX,rimeX,bodyX,condX)
+    pairs_built<-cbind(pairs_built,temp)
+  }
+  rm(wX,wfX,rimeX,bodyX,condX,temp,LinkNum) #cleanup
+}
+
+row<-3; set.seed(seeed) #pseudorandom based on variable set in Setup section
+pairs_built[1:rowsoutput,1:ncol(pairs_chain)]<-sample_n(pairs_chain,rowsoutput)
+
+for (row in 1:rowsoutput){
+  message(paste("\n row ",row,"of ",rowsoutput))
+  i<-1; imax<-1000
+  pb <- progress_bar$new(total = imax, width=50,
+                         format = "[:bar] :percent") #progress bar
+  while (pairs_built[row,1]<25 & #while chain <25, under timeout
+         #((proc.time()[["user.self"]] - start) <= timeout) &
+         (i<imax))
+  {
+    i<-i+1; pb$tick() 
+    #current row, limit length to actual words, drop NAs
+    rowcurrent<-pairs_built[row,c(1:(pairs_built[row,"maxW"]*5+1))]
+    maxmissing <- 25-pairs_built[row,"maxW"] #how many til 24
+    tryrow <- sample(1:nrow(pairs_chain),1)  #rand row as add
+    trylength <- pairs_chain[tryrow,"maxW"]  #length of new
+    if (trylength>maxmissing) {trylength<-maxmissing} #cut short if long
+    trychain <- pairs_chain[tryrow,c(2:(trylength*5+1))] #chain
+    trychain[1,5]<-"onpn" #label this connect as onpn
+    
+    ##concat chains # sum lengths
+    newvect <- as.vector(cbind(rowcurrent,trychain))
+    newvect[1,1]<-newvect[1,1]+trylength
+    
+    
+    if(
+      ## optimixed with elementwise or || tests items individually, faster
+      ## test for repeated word 
+      any(duplicated(newvect[1,grepl(glob2rx("w?"),names(newvect))])) ||
+      ## repeat cond more than 6 times. Should change to w?[?] optional
+      any(
+        table(as.character(
+          newvect[1,grepl(glob2rx("cond*"),names(newvect))]
+        )
+        )>6) ||
+      ## repeat any one rime or body more than 4
+      (any(
+        table(
+          as.character(newvect[1,grepl(glob2rx("*rime"),names(newvect))])
+        )
+        >4)) ||
+      (any(
+        table(
+          as.character(newvect[1,grepl(glob2rx("*body"),names(newvect))])
+        )
+        >4)) ||
+      
+      ## tests for repeat rime and body within same condition
+      ## tail -2 shifts from cond to rime, -1 for body
+      any(duplicated(as.character(
+        newvect[1, (tail(as.character(newvect[1,])=="oypy",-2) %in% TRUE)]
+          ))) ||
+       any(duplicated(as.character(
+        newvect[1, (tail(as.character(newvect[1,])=="oypy",-1) %in% TRUE)]
+          ))) ||
+      
+      any(duplicated(as.character(
+        newvect[1, (tail(as.character(newvect[1,])=="onpy",-2) %in% TRUE)]
+          ))) ||
+       any(duplicated(as.character(
+        newvect[1, (tail(as.character(newvect[1,])=="onpy",-1) %in% TRUE)]
+          )))||
+      
+      any(duplicated(as.character(
+        newvect[1, (tail(as.character(newvect[1,])=="oypn",-2) %in% TRUE)]
+          ))) ||
+       any(duplicated(as.character(
+        newvect[1, (tail(as.character(newvect[1,])=="oypn",-1) %in% TRUE)]
+          )))||
+      
+      any(duplicated(as.character(
+        newvect[1, (tail(as.character(newvect[1,])=="onpn",-2) %in% TRUE)]
+          ))) ||
+       any(duplicated(as.character(
+        newvect[1, (tail(as.character(newvect[1,])=="onpn",-1) %in% TRUE)]
+          )))
+      
+    ) {next}
+    else  
+    {
+      pairs_built[row,c(1:((newvect[1,1])*5+1))] <- newvect
+      next
+    } 
+  }
+}
+pairs_built_backup <- pairs_built #backup for loop above
+#below count instances of each condition
+{pairs_built$count_oypy <- rowSums(pairs_built == "oypy",na.rm = TRUE)
+pairs_built$count_onpy <- rowSums(pairs_built == "onpy",na.rm = TRUE)
+pairs_built$count_oypn <- rowSums(pairs_built == "oypn",na.rm = TRUE)
+pairs_built$count_onpn <- rowSums(pairs_built == "onpn",na.rm = TRUE)}
+
+## be careful running below twice. would add more, not refresh values
+## generates condition word frequencies
+for (cond in c("oypy","onpy","oypn","onpn")){
+  colname<-paste("wfmean_",cond,sep="")
+  temp<-data.frame(colname=numeric())
+  pairs_built<-rbind(pairs_built,temp)
+  for (row in 1:rowsoutput){
+    pairs_built[row,colname]<-mean(as.numeric(pairs_built[row, (tail(
+      as.character(pairs_built[1,])==cond,-3
+    ) %in% TRUE)]))
+  }
+}
+
+read<-data.frame(matrix(nrow=0,ncol=7))
+colnames(read)<-c("word","wf","rime","body","cond","item","set")
+for (row in 1:rowsoutput){
+  temp<-data.frame(matrix(nrow=24,ncol=6))
+  temm<-pairs_built[row,2:ncol(pairs_built)]
+  for (i in 1:25){
+    ii<-(1+(5*(i-1)))
+    ie<-5*i
+    #print(paste(ii,ie))
+    temp[i,]<-temm[ii:ie]
+    temp[i,6]<-i
+  }
+  colnames(temp)<-c("word","wf","rime","body","cond","item")
+  temp$set<-row
+  read<-rbind(read,temp)
+}
+read<-read[,c(7,6,1:5)]
+
+date <- paste(format(Sys.Date(), format="%m%d"),"_seed",seeed,sep = "")
+write.csv(pairs_built,file=paste("Output_Chains24",date,".csv",sep="_"))
+write.csv(read,paste("Output_Chains24",date,"format.csv",sep="_"))
+rm(i,imax,maxmissing,row,rowsoutput,trylength,tryrow,wf1,date,censored,
+   rowcurrent,trychain,newvect,colname,temp,pb,cond,temp,temm,ii,ie,read)
+
+
+```
+
