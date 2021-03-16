@@ -49,3 +49,4 @@ Some of these files are specific to an fMRI project I was involved in. They hard
 - *Loop_ConDecon:* Loops through the similarly named `Con_DeCon.sh` file with various levels of noise and hemodynamic response function values.
 - *ConvParVid:* Once we had simulated the data, automatically generates video files for each subject based on OptSeq par files. 
 - *Top_Voxel_Indiv:* TopVoxel analysis tool. Credit to Jin Wang & Macarena Suarez.
+- *tal2label:* This R script generates anatomical labels for Talairach coordinates, calling on SPM's tal2mni function and using the [label4MRI](https://github.com/yunshiuan/label4MRI) R package.
