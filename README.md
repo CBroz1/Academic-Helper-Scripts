@@ -1,5 +1,5 @@
 
-# Stimuli Manipulation 
+# Stimuli Manipulation
 
 Over my academic career, I've put time into learning tools that allow me to automatically generate videos, images, or text files for experimental stimuli or even data management. I post them here to preserve copies for future use, as well as share them with peers. The specifics of each script will have to be changed to fit future projects, but each can serve as a framework for accomplishing similar tasks.
 
@@ -12,6 +12,7 @@ Most of my video editing relies on [`ffmpeg`](https://github.com/FFmpeg/FFmpeg#f
 - *Hold_Last_Frame:* Does your (fMRI or Working Memory) experiment require that all videos in a directory are exactly the same duration? Do you wish you could use that last frame as your ISI? This script extends the last frame of a video clip to a target duration. 
 - *Hold_Last_Frame_Loop:* Puts the above information in a for loop. 
 - *LastFrame:* Generates png of last frame of a video clip.
+- *ffcopy:* Copy first X seconds of given video Y, append `-copy` to filename
 - *GetDur:* Generate duration of input video clip.
 - *Crop:* Do you have a lot of videos that are too zoomed out? This script first generates a mean image for many videos (using first or all frames), to make sure your various videos are lined up, and then crops based on user measurement of xy coordinates.
 - *Mute:* Generates a muted copy of all mp4 files in a directory, moved to a ./Muted subfolder.
@@ -29,7 +30,7 @@ Here, a lot of editing relies on [ImageMagick](https://imagemagick.org/index.php
 - *ConvertToPict:* Convert pngs to pict files, specifically for Psyscope.
 - *GenImgsOfText:* For single word presentation study using images, because native text presentation in software isn't ideal if you're alternating between orthography and control images, of false fonts, for example.
 
-## Text 
+## Text
 
 I'm a big advocate of [Sublime Text](https://www.sublimetext.com/) as a text editor with powerful integrated tools. I even use Sublime for note taking purposes, and have made a [tutorial video](https://www.youtube.com/watch?v=v_FENArHqFU) to go into more detail. For anything that can't be handled in a couple lines of Unix, I would turn to python or R, depending on collaborator preference..
 
