@@ -21,4 +21,4 @@ let "lf = $lf - 1" # actual last frame is ffprobe's measurement minus 1
 ffmpeg -loglevel panic -i $fn -vf select=\'eq\(n,$lf\) -vframes 1 $of
 
 ## generate 1s clip of output png
-#ffmpeg -loglevel panic -loop 1 -i $of -c:v libx264 -t 1 -pix_fmt yuv420p Ext_$1
+ffmpeg -loglevel panic -loop 1 -i $of -c:v libx264 -t 1 -pix_fmt yuv420p Ext_$1
