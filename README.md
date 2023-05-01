@@ -95,7 +95,7 @@ Some of these files are specific to an fMRI project I was involved in. They hard
 The following helps archive file systems:
 
 ```console
-rsync -hraP --ignore-existing /Source /Destination
+rsync -hraP --ignore-existing --delete --exclude '*.Trash-1000' /Source /Destination
 ```
 
 with these parameters:
@@ -104,6 +104,8 @@ with these parameters:
 - a archive
 - P show progress
 - --ignore-existing
+- --delete items no longer in source 
+- --exclude Linux trash
 
 ### Finding duplicates
 
